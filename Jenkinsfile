@@ -1,25 +1,25 @@
-pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.6-eclipse-temurin-17-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
+node {
+    stage('Checkout') {
+        checkout scmGit(
+            branches: [[name: '*/master']],
+            extensions: [],
+            userRemoteConfigs: [[url: '/home/Docker/simple-java-maven-app']]
+        )
     }
-    stages {
+    withDockerContainer(
+        image: 'maven:3.9.6-eclipse-temurin-17-alpine', 
+        args : '-v /root/.m2:/root/.m2'
+    ) {
         stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
-            }
+            sh 'mvn -B -DskipTests clean package'
         }
-        stage('Test') { 
-            steps {
-                sh 'mvn test' 
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml' 
-                }
-            }
+        try {
+            stage('Test') {
+                sh 'mvn test'
+            } 
+        } finally {
+            junit 'target/surefire-reports/*.xml'
         }
     }
 }
+
