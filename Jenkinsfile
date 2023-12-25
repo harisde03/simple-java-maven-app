@@ -1,8 +1,8 @@
 node {
     stage('Checkout') {
         checkout scmGit(
-            branches: [[name: '*/master']],
-            extensions: [],
+            branches         : [[name: '*/master']],
+            extensions       : [],
             userRemoteConfigs: [[url: '/home/Docker/simple-java-maven-app']]
         )
     }
